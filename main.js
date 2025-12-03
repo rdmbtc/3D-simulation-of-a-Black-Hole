@@ -28,12 +28,12 @@ const starCount = 5000;
 const starPositions = new Float32Array(starCount * 3);
 
 for (let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 100;
-    const y = (Math.random() - 0.5) * 100;
-    const z = (Math.random() - 0.5) * 100;
-    starPositions[i * 3] = x;
-    starPositions[i * 3 + 1] = y;
-    starPositions[i * 3 + 2] = z;
+  const x = (Math.random() - 0.5) * 100;
+  const y = (Math.random() - 0.5) * 100;
+  const z = (Math.random() - 0.5) * 100;
+  starPositions[i * 3] = x;
+  starPositions[i * 3 + 1] = y;
+  starPositions[i * 3 + 2] = z;
 }
 
 starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
@@ -49,21 +49,21 @@ scene.add(blackHole);
 
 // Custom Lensing Shader
 const LensingShader = {
-    uniforms: {
-        tDiffuse: { value: null },
-        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uCenter: { value: new THREE.Vector2(0.5, 0.5) },
-        uMass: { value: 0.02 }, // Lower default mass
-        uRadius: { value: 0.05 } // Event horizon radius in UV
-    },
-    vertexShader: `
+  uniforms: {
+    tDiffuse: { value: null },
+    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    uCenter: { value: new THREE.Vector2(0.5, 0.5) },
+    uMass: { value: 0.02 }, // Lower default mass
+    uRadius: { value: 0.05 } // Event horizon radius in UV
+  },
+  vertexShader: `
     varying vec2 vUv;
     void main() {
       vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-    fragmentShader: `
+  fragmentShader: `
     uniform sampler2D tDiffuse;
     uniform vec2 uResolution;
     uniform vec2 uCenter;
@@ -110,11 +110,11 @@ lensingPass.enabled = true;
 // Accretion Disk
 const diskGeometry = new THREE.RingGeometry(1.5, 4.5, 128, 32); // Increased segments and radius
 const diskMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        uTime: { value: 0 },
-        uColor: { value: new THREE.Color(0xffaa33) }
-    },
-    vertexShader: `
+  uniforms: {
+    uTime: { value: 0 },
+    uColor: { value: new THREE.Color(0xffaa33) }
+  },
+  vertexShader: `
     varying vec2 vUv;
     varying vec3 vPos;
     void main() {
@@ -123,7 +123,7 @@ const diskMaterial = new THREE.ShaderMaterial({
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-    fragmentShader: `
+  fragmentShader: `
     uniform float uTime;
     uniform vec3 uColor;
     varying vec2 vUv;
@@ -216,10 +216,10 @@ const diskMaterial = new THREE.ShaderMaterial({
       gl_FragColor = vec4(color, alpha * intensity);
     }
   `,
-    side: THREE.DoubleSide,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
+  side: THREE.DoubleSide,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
 });
 
 const disk = new THREE.Mesh(diskGeometry, diskMaterial);
@@ -241,16 +241,16 @@ composer.addPass(bloomPass);
 // GUI
 const gui = new GUI();
 const params = {
-    bloomStrength: 1.5,
-    bloomRadius: 0,
-    bloomThreshold: 0,
-    diskSpeed: 0.2,
-    diskColor: '#ffaa33',
-    lensingMass: 0.02,
-    lensingRadius: 0.05,
-    resolution: 1.0,
-    bloomEnabled: true,
-    starsVisible: true
+  bloomStrength: 1.5,
+  bloomRadius: 0,
+  bloomThreshold: 0,
+  diskSpeed: 0.2,
+  diskColor: '#ffaa33',
+  lensingMass: 0.02,
+  lensingRadius: 0.05,
+  resolution: 1.0,
+  bloomEnabled: true,
+  starsVisible: true
 };
 
 const bloomFolder = gui.addFolder('Bloom');
@@ -268,30 +268,30 @@ lensingFolder.add(params, 'lensingRadius', 0, 0.5).onChange(v => lensingPass.uni
 
 const perfFolder = gui.addFolder('Performance');
 perfFolder.add(params, 'resolution', 0.1, 2.0).name('Resolution Scale').onChange(v => {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * v);
-    composer.setSize(window.innerWidth, window.innerHeight); // Composer needs re-size to pick up new pixel ratio? 
-    // Actually setSize uses the renderer's pixel ratio if not specified, but here we might need to be explicit or just rely on renderer.
-    // Let's just resize the renderer and composer.
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * v);
+  composer.setSize(window.innerWidth, window.innerHeight); // Composer needs re-size to pick up new pixel ratio? 
+  // Actually setSize uses the renderer's pixel ratio if not specified, but here we might need to be explicit or just rely on renderer.
+  // Let's just resize the renderer and composer.
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
 });
 perfFolder.add(params, 'bloomEnabled').name('Enable Bloom').onChange(v => {
-    bloomPass.enabled = v;
+  bloomPass.enabled = v;
 });
 perfFolder.add(params, 'starsVisible').name('Show Stars').onChange(v => {
-    stars.visible = v;
+  stars.visible = v;
 });
 
 // Handle Resize
 window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-    lensingPass.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  lensingPass.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
 
-    // Maintain resolution scale on resize
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * params.resolution);
+  // Maintain resolution scale on resize
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2) * params.resolution);
 });
 
 // Info Panel Logic
@@ -300,33 +300,33 @@ const closeBtn = document.getElementById('close-btn');
 const infoPanel = document.getElementById('info-panel');
 
 infoBtn.addEventListener('click', () => {
-    infoPanel.classList.add('open');
+  infoPanel.classList.add('open');
 });
 
 closeBtn.addEventListener('click', () => {
-    infoPanel.classList.remove('open');
+  infoPanel.classList.remove('open');
 });
 
 // Animation Loop
 function animate() {
-    requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
-    const time = performance.now() * 0.001;
-    disk.material.uniforms.uTime.value = time;
-    disk.rotation.z += params.diskSpeed * 0.05;
+  const time = performance.now() * 0.001;
+  disk.material.uniforms.uTime.value = time;
+  disk.rotation.z += params.diskSpeed * 0.05;
 
-    // Update Black Hole Screen Position for Lensing
-    const vector = new THREE.Vector3(0, 0, 0); // Black hole is at 0,0,0
-    vector.project(camera);
+  // Update Black Hole Screen Position for Lensing
+  const vector = new THREE.Vector3(0, 0, 0); // Black hole is at 0,0,0
+  vector.project(camera);
 
-    // Convert NDC to UV (0 to 1)
-    const x = (vector.x + 1) / 2;
-    const y = (vector.y + 1) / 2;
+  // Convert NDC to UV (0 to 1)
+  const x = (vector.x + 1) / 2;
+  const y = (vector.y + 1) / 2;
 
-    lensingPass.uniforms.uCenter.value.set(x, y);
+  lensingPass.uniforms.uCenter.value.set(x, y);
 
-    controls.update();
-    composer.render();
+  controls.update();
+  composer.render();
 }
 
 animate();
